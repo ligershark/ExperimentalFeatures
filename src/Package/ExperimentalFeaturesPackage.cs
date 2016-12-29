@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.ComponentModel.Design;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Tasks = System.Threading.Tasks;
@@ -30,7 +31,6 @@ namespace ExperimentalFeatures
     {
         protected override async Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            // Init installer
             var repository = await GetServiceAsync(typeof(SVsExtensionRepository)) as IVsExtensionRepository;
             var manager = await GetServiceAsync(typeof(SVsExtensionManager)) as IVsExtensionManager;
 
@@ -41,9 +41,19 @@ namespace ExperimentalFeatures
 
             bool hasUpdates = await installer.CheckForUpdatesAsync(registry);
 
-            if (hasUpdates)
+            //if (!hasUpdates)
+            //    return;
+
+            var missingExtensions = installer.GetMissingExtensions();
+
+            if (missingExtensions.Any())
             {
-                await installer.InstallAsync();
+                var statusBar = await GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
+                statusBar.SetText("Installing Experimental Web Features...");
+
+                await installer.InstallAsync(missingExtensions);
+
+                statusBar.SetText("Experimental Web Features installed");
             }
         }
     }

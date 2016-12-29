@@ -42,12 +42,19 @@ namespace ExperimentalFeatures
         {
             _store.Reset();
             await _liveFeed.UpdateAsync(_remoteUrl);
-            await InstallAsync();
+            await InstallAsync(GetMissingExtensions());
         }
 
-        public async Task InstallAsync()
+        public async Task InstallAsync(IEnumerable<ExtensionEntry> missingExtensions)
         {
-            var missingExtensions = GetMissingExtensions();
+            if (!missingExtensions.Any())
+                return;
+
+#if DEBUG
+            // Don't install while running in debug mode
+            await Task.Delay(2000);
+            return;
+#endif
 
             await Task.Run(() =>
             {
@@ -99,7 +106,7 @@ namespace ExperimentalFeatures
             }
         }
 
-        private IEnumerable<ExtensionEntry> GetMissingExtensions()
+        public IEnumerable<ExtensionEntry> GetMissingExtensions()
         {
             var installed = _manager.GetInstalledExtensions();
             var notInstalled = _liveFeed.Extensions.Where(ext => !installed.Any(ins => ins.Header.Identifier == ext.Id));
