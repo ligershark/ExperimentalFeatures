@@ -1,10 +1,12 @@
 # Road map
 
+- [x] Install missing extensions
+- [x] Auto-update from live feed
 - [ ] Command to open model dialog
-- [ ] Install missing extensions
 - [ ] Reset extension
-- [ ] Auto-update from live feed
+- [ ] Uninstall extensions
 - [ ] Read and write registry keys
+- [ ] Show progress in Background Tasks
 
 Features that have a checkmark are complete and available for
 download in the

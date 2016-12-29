@@ -34,9 +34,17 @@ namespace ExperimentalFeatures
             var repository = await GetServiceAsync(typeof(SVsExtensionRepository)) as IVsExtensionRepository;
             var manager = await GetServiceAsync(typeof(SVsExtensionManager)) as IVsExtensionManager;
 
-            var installer = new Installer(repository, manager);
-            var registry = new RegistryKeyWrapper(base.UserRegistryRoot);
-            await installer.InitializeAsync(registry);
+            var store = new DataStore(Constants.LogFile);
+            var feed = new LiveFeed(Constants.LiveFeedCachePath);
+            var installer = new Installer(repository, manager, feed, store);
+            var registry = new RegistryKeyWrapper(UserRegistryRoot);
+
+            bool hasUpdates = await installer.CheckForUpdatesAsync(registry);
+
+            if (hasUpdates)
+            {
+                await installer.InstallAsync();
+            }
         }
     }
 }
