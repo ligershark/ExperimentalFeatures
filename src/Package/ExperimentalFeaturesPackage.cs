@@ -34,7 +34,7 @@ namespace ExperimentalFeatures
             var repository = await GetServiceAsync(typeof(SVsExtensionRepository)) as IVsExtensionRepository;
             var manager = await GetServiceAsync(typeof(SVsExtensionManager)) as IVsExtensionManager;
 
-            var installer = new Installer.Installer(repository, manager);
+            var installer = new Installer(repository, manager);
         }
     }
 }
