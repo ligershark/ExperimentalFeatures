@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <Extern href="stdidcmd.h"/>
+  <Extern href="vsshlids.h"/>
+  <Include href="KnownImageIds.vsct"/>
+
+  <Commands package="guidShowModalCommandPackage">
+    <Buttons>
+      <Button guid="guidShowModalCommandPackageCmdSet" id="ShowModalCommandId" priority="0x0100" type="Button">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_TOOLS_EXT_CUST"/>
+        <Icon guid="ImageCatalogGuid" id="WebDestination" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <Strings>
+          <ButtonText>Experimental Web Features...</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <Symbols>
+    <GuidSymbol name="guidShowModalCommandPackage" value="{a24cb156-c6c8-4f54-822b-fa76687e138d}" />
+
+    <GuidSymbol name="guidShowModalCommandPackageCmdSet" value="{42a66f9d-2139-4459-b7d9-8b8ba8f03dfe}">
+      <IDSymbol name="ShowModalCommandId" value="0x0100" />
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>
