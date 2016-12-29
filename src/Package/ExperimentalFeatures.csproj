@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\Microsoft.VSSDK.BuildTools.15.0.25902-RC2\build\Microsoft.VSSDK.BuildTools.props" Condition="Exists('..\packages\Microsoft.VSSDK.BuildTools.15.0.25902-RC2\build\Microsoft.VSSDK.BuildTools.props')" />
+  <Import Project="..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25929-RC2\build\Microsoft.VSSDK.BuildTools.props" Condition="Exists('..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25929-RC2\build\Microsoft.VSSDK.BuildTools.props')" />
   <PropertyGroup>
     <MinimumVisualStudioVersion>15.0</MinimumVisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -8,12 +8,15 @@
     <StartAction>Program</StartAction>
     <StartProgram>$(DevEnvDir)\devenv.exe</StartProgram>
     <StartArguments>/rootsuffix Exp</StartArguments>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
+    <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -52,7 +55,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Constants.cs" />
     <Compile Include="Installer\Installer.cs" />
+    <Compile Include="Installer\IRegestryKey.cs" />
+    <Compile Include="Installer\RegistryKeyWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\ShowModalCommand.cs" />
     <Compile Include="ExperimentalFeaturesPackage.cs" />
@@ -70,7 +76,6 @@
       <Link>Resources\LICENSE</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="Key.snk" />
     <None Include="packages.config" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
@@ -95,6 +100,10 @@
     <Reference Include="Microsoft.VisualStudio.CommandBars, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
+    <Reference Include="Microsoft.VisualStudio.CoreUtility, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.VisualStudio.CoreUtility.15.0.25901-RC\lib\net45\Microsoft.VisualStudio.CoreUtility.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.ExtensionEngine">
       <HintPath>..\..\lib\Microsoft.VisualStudio.ExtensionEngine.dll</HintPath>
     </Reference>
@@ -111,11 +120,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Shell.15.0, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Microsoft.VisualStudio.Shell.15.0.15.0.25902-RC2\lib\Microsoft.VisualStudio.Shell.15.0.dll</HintPath>
+      <HintPath>..\..\packages\Microsoft.VisualStudio.Shell.15.0.15.0.25901-RC\lib\Microsoft.VisualStudio.Shell.15.0.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Shell.Framework, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Microsoft.VisualStudio.Shell.Framework.15.0.25902-RC2\lib\net45\Microsoft.VisualStudio.Shell.Framework.dll</HintPath>
+      <HintPath>..\..\packages\Microsoft.VisualStudio.Shell.Framework.15.0.25901-RC\lib\net45\Microsoft.VisualStudio.Shell.Framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Shell.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -154,7 +163,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Threading, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Microsoft.VisualStudio.Threading.15.0.20-pre\lib\net45\Microsoft.VisualStudio.Threading.dll</HintPath>
+      <HintPath>..\..\packages\Microsoft.VisualStudio.Threading.15.0.109-pre\lib\net45\Microsoft.VisualStudio.Threading.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Utilities, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -162,8 +171,11 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.Validation, Version=15.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Microsoft.VisualStudio.Validation.15.0.11-pre\lib\net45\Microsoft.VisualStudio.Validation.dll</HintPath>
+      <HintPath>..\..\packages\Microsoft.VisualStudio.Validation.15.0.55-pre\lib\net45\Microsoft.VisualStudio.Validation.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.8.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="stdole, Version=7.0.3300.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>False</EmbedInteropTypes>
@@ -205,10 +217,10 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25902-RC2\build\Microsoft.VSSDK.BuildTools.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25902-RC2\build\Microsoft.VSSDK.BuildTools.props'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25902-RC2\build\Microsoft.VSSDK.BuildTools.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25902-RC2\build\Microsoft.VSSDK.BuildTools.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25929-RC2\build\Microsoft.VSSDK.BuildTools.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25929-RC2\build\Microsoft.VSSDK.BuildTools.props'))" />
+    <Error Condition="!Exists('..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25929-RC2\build\Microsoft.VSSDK.BuildTools.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25929-RC2\build\Microsoft.VSSDK.BuildTools.targets'))" />
   </Target>
-  <Import Project="..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25902-RC2\build\Microsoft.VSSDK.BuildTools.targets" Condition="Exists('..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25902-RC2\build\Microsoft.VSSDK.BuildTools.targets')" />
+  <Import Project="..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25929-RC2\build\Microsoft.VSSDK.BuildTools.targets" Condition="Exists('..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25929-RC2\build\Microsoft.VSSDK.BuildTools.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

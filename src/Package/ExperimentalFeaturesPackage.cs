@@ -25,7 +25,7 @@ namespace ExperimentalFeatures
 
     [Guid("ec98875a-b294-456a-98d5-7663e703ded2")]
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [ProvideAutoLoad(UIContextGuids80.NoSolution, PackageAutoLoadFlags.BackgroundLoad)]
+    [ProvideAutoLoad(UIContextGuids80.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class InstallerPackage : AsyncPackage
     {
         protected override async Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
@@ -35,6 +35,8 @@ namespace ExperimentalFeatures
             var manager = await GetServiceAsync(typeof(SVsExtensionManager)) as IVsExtensionManager;
 
             var installer = new Installer(repository, manager);
+            var registry = new RegistryKeyWrapper(base.UserRegistryRoot);
+            await installer.InitializeAsync(registry);
         }
     }
 }
