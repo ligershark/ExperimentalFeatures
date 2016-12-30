@@ -4,9 +4,8 @@
 - [x] Auto-update from live feed
 - [x] Command to open model dialog
 - [x] Reset extension
-- [ ] Uninstall extensions
-- [ ] Read and write registry keys
-- [ ] Show progress in Background Tasks
+- [x] Uninstall extensions
+- [x] Read and write registry keys
 - [ ] Move strings to resource file
 
 Features that have a checkmark are complete and available for

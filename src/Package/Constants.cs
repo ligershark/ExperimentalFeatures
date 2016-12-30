@@ -9,5 +9,6 @@ namespace ExperimentalFeatures
         public static readonly string LogFile = Environment.ExpandEnvironmentVariables("%localAppData%\\" + Vsix.Name + "\\installer.log");
 
         public const double UpdateIntervalDays = 3;
+        public const string RegistrySubKey = "ExperimentalWebFeatures";
     }
 }

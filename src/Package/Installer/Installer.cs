@@ -12,51 +12,61 @@ namespace ExperimentalFeatures
     {
         private IVsExtensionRepository _repository;
         private IVsExtensionManager _manager;
-        private LiveFeed _liveFeed;
 
         public Installer(IVsExtensionRepository repository, IVsExtensionManager manager, LiveFeed feed, DataStore store)
         {
             _repository = repository;
             _manager = manager;
-            _liveFeed = feed;
 
+            LiveFeed = feed;
             Store = store;
         }
 
         public DataStore Store { get; }
 
+        public LiveFeed LiveFeed { get; }
+
         public async Task<bool> CheckForUpdatesAsync()
         {
-            var file = new FileInfo(_liveFeed.LocalCachePath);
+            var file = new FileInfo(LiveFeed.LocalCachePath);
             bool hasUpdates = false;
 
             if (!file.Exists || file.LastWriteTime < DateTime.Now.AddDays(-Constants.UpdateIntervalDays))
             {
-                hasUpdates = await _liveFeed.UpdateAsync();
+                hasUpdates = await LiveFeed.UpdateAsync();
             }
             else
             {
-                await _liveFeed.ParseAsync();
+                await LiveFeed.ParseAsync();
             }
 
             return hasUpdates;
         }
 
-        public async Task ResetAsync()
+        public async Task ResetAsync(Version vsVersion)
         {
             Store.Reset();
-            await _liveFeed.UpdateAsync();
-            await InstallAsync(GetMissingExtensions());
+            await LiveFeed.UpdateAsync();
+            await RunAsync(vsVersion, default(CancellationToken));
         }
 
-        public async Task InstallAsync(IEnumerable<ExtensionEntry> missingExtensions, CancellationToken token = default(CancellationToken))
+        public async Task RunAsync(Version vsVersion, CancellationToken cancellationToken)
         {
-            if (!missingExtensions.Any())
+            var toInstall = GetMissingExtensions();
+            await InstallAsync(toInstall, cancellationToken);
+
+            var toUninstall = GetExtensionsMarkedForDeletion(vsVersion);
+            await UninstallAsync(toUninstall, cancellationToken);
+        }
+
+        private async Task InstallAsync(IEnumerable<ExtensionEntry> extensions, CancellationToken token = default(CancellationToken))
+        {
+            if (!extensions.Any())
                 return;
 
 #if DEBUG
             // Don't install while running in debug mode
-            foreach (var ext in missingExtensions)
+            foreach (var ext in extensions)
             {
                 await Task.Delay(2000);
                 Store.MarkInstalled(ext);
@@ -69,12 +79,44 @@ namespace ExperimentalFeatures
             {
                 try
                 {
-                    foreach (var extension in missingExtensions)
+                    foreach (var extension in extensions)
                     {
                         if (token != null && token.IsCancellationRequested)
                             return;
 
                         InstallExtension(extension);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.Write(ex);
+                }
+                finally
+                {
+                    Store.Save();
+                }
+            });
+        }
+
+        private async Task UninstallAsync(IEnumerable<ExtensionEntry> extensions, CancellationToken token)
+        {
+            if (!extensions.Any())
+                return;
+
+            await Task.Run(() =>
+            {
+                try
+                {
+                    foreach (var ext in extensions)
+                    {
+                        if (token.IsCancellationRequested)
+                            return;
+
+                        if (_manager.TryGetInstalledExtension(ext.Id, out IInstalledExtension result))
+                        {
+                            _manager.Uninstall(result);
+                            Store.MarkUninstalled(ext);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -118,12 +160,17 @@ namespace ExperimentalFeatures
             }
         }
 
-        public IEnumerable<ExtensionEntry> GetMissingExtensions()
+        internal IEnumerable<ExtensionEntry> GetMissingExtensions()
         {
             var installed = _manager.GetInstalledExtensions();
-            var notInstalled = _liveFeed.Extensions.Where(ext => !installed.Any(ins => ins.Header.Identifier == ext.Id));
+            var notInstalled = LiveFeed.Extensions.Where(ext => !installed.Any(ins => ins.Header.Identifier == ext.Id));
 
             return notInstalled.Where(ext => !Store.HasBeenInstalled(ext.Id));
+        }
+
+        internal IEnumerable<ExtensionEntry> GetExtensionsMarkedForDeletion(Version VsVersion)
+        {
+            return LiveFeed.Extensions.Where(ext => ext.MinVersion > VsVersion || ext.MaxVersion < VsVersion);
         }
     }
 }

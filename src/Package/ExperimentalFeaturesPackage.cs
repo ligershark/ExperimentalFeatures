@@ -1,10 +1,8 @@
 ﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ExtensionManager;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.ComponentModel.Design;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using Tasks = System.Threading.Tasks;
@@ -14,7 +12,7 @@ namespace ExperimentalFeatures
     [Guid(PackageGuids.guidShowModalCommandPackageString)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", Vsix.Version, IconResourceID = 400)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string)]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     public sealed class ExperimentalFeaturesPackage : AsyncPackage
     {
@@ -32,22 +30,8 @@ namespace ExperimentalFeatures
             if (!hasUpdates)
                 return;
 #endif
-            await InstallExtensionsAsync(cancellationToken, Installer);
-        }
-
-        private async Tasks.Task InstallExtensionsAsync(CancellationToken cancellationToken, Installer installer)
-        {
-            var missingExtensions = installer.GetMissingExtensions();
-
-            if (missingExtensions.Any())
-            {
-                var statusBar = await GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
-                statusBar.SetText("Installing Experimental Web Features...");
-
-                await installer.InstallAsync(missingExtensions, cancellationToken);
-
-                statusBar.SetText("Experimental Web Features installed");
-            }
+            var vsVersion = GetVisualStudioVersion();
+            await Installer.RunAsync(vsVersion, cancellationToken);
         }
 
         private async Tasks.Task RegisterCommandsAsync()
@@ -64,10 +48,18 @@ namespace ExperimentalFeatures
             var manager = await GetServiceAsync(typeof(SVsExtensionManager)) as IVsExtensionManager;
 
             var registry = new RegistryKeyWrapper(UserRegistryRoot);
-            var store = new DataStore(Constants.LogFile);
+            var store = new DataStore(registry, Constants.LogFile);
             var feed = new LiveFeed(registry, Constants.LiveFeedUrl, Constants.LiveFeedCachePath);
 
             return new Installer(repository, manager, feed, store);
+        }
+
+        public static Version GetVisualStudioVersion()
+        {
+            var process = System.Diagnostics.Process.GetCurrentProcess();
+            var v = process.MainModule.FileVersionInfo;
+
+            return new Version(v.ProductMajorPart, v.ProductMinorPart, v.ProductBuildPart);
         }
     }
 }

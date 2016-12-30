@@ -11,12 +11,14 @@ namespace ExperimantalFeaturesTest
     {
         private string _logFile;
         private ExtensionEntry _entry;
+        private IRegistryKey _registry;
 
         [TestInitialize]
         public void Setup()
         {
             _logFile = Path.Combine(Path.GetTempPath(), "logfile.json");
             _entry = new ExtensionEntry { Id = "id" };
+            _registry = new StaticRegistryKey();
         }
 
         [TestCleanup]
@@ -28,7 +30,7 @@ namespace ExperimantalFeaturesTest
         [TestMethod]
         public void ExtensionInstalledNoLogFile()
         {
-            var store = new DataStore(_logFile);
+            var store = new DataStore(_registry, _logFile);
             store.MarkInstalled(_entry);
 
             Assert.AreEqual(1, store.Log.Count);
@@ -44,12 +46,14 @@ namespace ExperimantalFeaturesTest
         [TestMethod]
         public void ExtensionUninstalledNoLogFile()
         {
-            var store = new DataStore(_logFile);
+            var store = new DataStore(_registry, _logFile);
             store.MarkUninstalled(_entry);
+            store.Save();
 
             Assert.AreEqual(1, store.Log.Count);
             Assert.AreEqual(_entry.Id, store.Log[0].Id);
             Assert.AreEqual("Uninstalled", store.Log[0].Action);
+            Assert.AreEqual(_entry.Id, _registry.GetValue("disable"));
         }
 
         [TestMethod]
@@ -60,7 +64,7 @@ namespace ExperimantalFeaturesTest
             var json = JsonConvert.SerializeObject(msg);
             File.WriteAllText(_logFile, json);
 
-            var store = new DataStore(_logFile);
+            var store = new DataStore(_registry, _logFile);
 
             Assert.IsTrue(store.HasBeenInstalled(_entry.Id));
             Assert.AreEqual(1, store.Log.Count);
@@ -75,7 +79,7 @@ namespace ExperimantalFeaturesTest
             var json = JsonConvert.SerializeObject(msg);
             File.WriteAllText(_logFile, json);
 
-            var store = new DataStore(_logFile);
+            var store = new DataStore(_registry, _logFile);
 
             Assert.AreEqual(1, store.Log.Count);
 

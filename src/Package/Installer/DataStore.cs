@@ -9,10 +9,13 @@ namespace ExperimentalFeatures
     public class DataStore
     {
         private static string _logFile;
+        private IRegistryKey _key;
 
-        public DataStore(string filePath)
+        public DataStore(IRegistryKey key, string filePath)
         {
             _logFile = filePath;
+            _key = key;
+
             Initialize();
         }
 
@@ -37,6 +40,8 @@ namespace ExperimentalFeatures
         {
             string json = JsonConvert.SerializeObject(Log);
             File.WriteAllText(_logFile, json);
+
+            UpdateRegistry();
         }
 
         public bool Reset()
@@ -61,12 +66,23 @@ namespace ExperimentalFeatures
                 if (File.Exists(_logFile))
                 {
                     Log = JsonConvert.DeserializeObject<List<LogMessage>>(File.ReadAllText(_logFile));
+                    UpdateRegistry();
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.Write(ex);
                 File.Delete(_logFile);
+            }
+        }
+
+        private void UpdateRegistry()
+        {
+            var uninstall = string.Join(";", Log.Select(l => l.Id));
+
+            using (_key.CreateSubKey(Constants.RegistrySubKey))
+            {
+                _key.SetValue("disable", uninstall);
             }
         }
 

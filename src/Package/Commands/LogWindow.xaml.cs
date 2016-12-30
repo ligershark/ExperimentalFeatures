@@ -29,7 +29,9 @@ namespace ExperimentalFeatures.Commands
 
         private void ResetClick(object sender, RoutedEventArgs e)
         {
-            ExperimentalFeaturesPackage.Installer.ResetAsync().ConfigureAwait(false);
+            var vsVersion = ExperimentalFeaturesPackage.GetVisualStudioVersion();
+            ExperimentalFeaturesPackage.Installer.ResetAsync(vsVersion).ConfigureAwait(false);
+
             Close();
         }
     }

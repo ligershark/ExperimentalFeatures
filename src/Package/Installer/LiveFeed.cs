@@ -98,7 +98,7 @@ namespace ExperimentalFeatures
         {
             LiveFeedUrl = defaultUrl;
 
-            using (key.CreateSubKey("ExperimentalWebFeatures"))
+            using (key.CreateSubKey(Constants.RegistrySubKey))
             {
                 if (key.GetValue("path") == null)
                 {
