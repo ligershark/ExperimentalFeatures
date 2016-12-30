@@ -9,18 +9,21 @@ namespace ExperimentalFeatures
 {
     public class LiveFeed
     {
-        public LiveFeed(string cachePath)
+        public LiveFeed(IRegistryKey key, string liveFeedUrl, string cachePath)
         {
             LocalCachePath = cachePath;
+
+            EnsureRegistry(key, liveFeedUrl);
         }
 
         public string LocalCachePath { get; }
+        public string LiveFeedUrl { get; private set; }
 
         public List<ExtensionEntry> Extensions { get; } = new List<ExtensionEntry>();
 
-        public async Task<bool> UpdateAsync(string url)
+        public async Task<bool> UpdateAsync()
         {
-            bool hasUpdates = await DownloadFileAsync(url);
+            bool hasUpdates = await DownloadFileAsync();
             await ParseAsync();
 
             return hasUpdates;
@@ -53,7 +56,7 @@ namespace ExperimentalFeatures
             }
         }
 
-        private async Task<bool> DownloadFileAsync(string url)
+        private async Task<bool> DownloadFileAsync()
         {
             string oldContent = File.Exists(LocalCachePath) ? File.ReadAllText(LocalCachePath) : "";
 
@@ -63,7 +66,7 @@ namespace ExperimentalFeatures
 
                 using (var client = new WebClient())
                 {
-                    await client.DownloadFileTaskAsync(url, LocalCachePath);
+                    await client.DownloadFileTaskAsync(LiveFeedUrl, LocalCachePath);
                 }
             }
             catch (Exception ex)
@@ -75,6 +78,23 @@ namespace ExperimentalFeatures
             string newContent = File.ReadAllText(LocalCachePath);
 
             return oldContent != newContent;
+        }
+
+        private void EnsureRegistry(IRegistryKey key, string defaultUrl)
+        {
+            LiveFeedUrl = defaultUrl;
+
+            using (key.CreateSubKey("ExperimentalWebFeatures"))
+            {
+                if (key.GetValue("path") == null)
+                {
+                    key.SetValue("path", defaultUrl);
+                }
+                else
+                {
+                    LiveFeedUrl = key.GetValue("path") as string;
+                }
+            }
         }
     }
 }

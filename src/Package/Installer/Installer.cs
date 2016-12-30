@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ExperimentalFeatures
@@ -13,7 +14,6 @@ namespace ExperimentalFeatures
         private IVsExtensionManager _manager;
         private LiveFeed _liveFeed;
         private DataStore _store;
-        private string _remoteUrl;
 
         public Installer(IVsExtensionRepository repository, IVsExtensionManager manager, LiveFeed feed, DataStore store)
         {
@@ -23,16 +23,14 @@ namespace ExperimentalFeatures
             _store = store;
         }
 
-        public async Task<bool> CheckForUpdatesAsync(IRegistryKey key)
+        public async Task<bool> CheckForUpdatesAsync()
         {
-            EnsureRegistry(key);
-
             var file = new FileInfo(_liveFeed.LocalCachePath);
             bool hasUpdates = false;
 
             if (!file.Exists || file.LastWriteTime < DateTime.Now.AddDays(Constants.UpdateInterval))
             {
-                hasUpdates = await _liveFeed.UpdateAsync(_remoteUrl);
+                hasUpdates = await _liveFeed.UpdateAsync();
             }
 
             return hasUpdates;
@@ -41,11 +39,11 @@ namespace ExperimentalFeatures
         public async Task ResetAsync()
         {
             _store.Reset();
-            await _liveFeed.UpdateAsync(_remoteUrl);
+            await _liveFeed.UpdateAsync();
             await InstallAsync(GetMissingExtensions());
         }
 
-        public async Task InstallAsync(IEnumerable<ExtensionEntry> missingExtensions)
+        public async Task InstallAsync(IEnumerable<ExtensionEntry> missingExtensions, CancellationToken token = default(CancellationToken))
         {
             if (!missingExtensions.Any())
                 return;
@@ -62,6 +60,9 @@ namespace ExperimentalFeatures
                 {
                     foreach (var extension in missingExtensions)
                     {
+                        if (token != null && token.IsCancellationRequested)
+                            return;
+
                         InstallExtension(extension);
                     }
                 }
@@ -112,23 +113,6 @@ namespace ExperimentalFeatures
             var notInstalled = _liveFeed.Extensions.Where(ext => !installed.Any(ins => ins.Header.Identifier == ext.Id));
 
             return notInstalled.Where(ext => !_store.HasBeenInstalled(ext.Id));
-        }
-
-        private void EnsureRegistry(IRegistryKey key)
-        {
-            _remoteUrl = Constants.LiveFeedPath;
-
-            using (key.CreateSubKey("ExperimentalWebFeatures"))
-            {
-                if (key.GetValue("path") == null)
-                {
-                    key.SetValue("path", Constants.LiveFeedPath);
-                }
-                else
-                {
-                    _remoteUrl = key.GetValue("path") as string;
-                }
-            }
         }
     }
 }

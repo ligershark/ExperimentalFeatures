@@ -15,9 +15,9 @@ namespace ExperimantalFeaturesTest
         {
             string localPath = Path.Combine(Path.GetTempPath(), "update.json");
             var file = new FileInfo("..\\..\\artifacts\\feed.json");
-            var feed = new LiveFeed(localPath);
+            var feed = new LiveFeed(new StaticRegistryKey(), file.FullName, localPath);
 
-            await feed.UpdateAsync(file.FullName);
+            await feed.UpdateAsync();
             File.Delete(localPath);
 
             Assert.IsTrue(feed.Extensions.Count == 2);
@@ -30,7 +30,7 @@ namespace ExperimantalFeaturesTest
         public async Task ParsingAsync()
         {
             string localPath = Path.Combine(Path.GetTempPath(), "feed.json");
-            var feed = new LiveFeed(localPath);
+            var feed = new LiveFeed(new StaticRegistryKey(), "", localPath);
 
             string content = @"{
             ""Add New File"": {

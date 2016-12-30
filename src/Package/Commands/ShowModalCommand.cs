@@ -1,8 +1,6 @@
-﻿using System;
+﻿using Microsoft.VisualStudio.Shell;
+using System;
 using System.ComponentModel.Design;
-using System.Globalization;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace ExperimentalFeatures
 {
@@ -37,16 +35,7 @@ namespace ExperimentalFeatures
 
         private void MenuItemCallback(object sender, EventArgs e)
         {
-            string message = string.Format(CultureInfo.CurrentCulture, "Inside {0}.MenuItemCallback()", this.GetType().FullName);
-            string title = "ShowModalCommand";
-
-            VsShellUtilities.ShowMessageBox(
-                this.ServiceProvider,
-                message,
-                title,
-                OLEMSGICON.OLEMSGICON_INFO,
-                OLEMSGBUTTON.OLEMSGBUTTON_OK,
-                OLEMSGDEFBUTTON.OLEMSGDEFBUTTON_FIRST);
+            System.Windows.Forms.MessageBox.Show("Test", Vsix.Name);
         }
     }
 }

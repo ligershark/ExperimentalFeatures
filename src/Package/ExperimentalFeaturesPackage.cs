@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.ExtensionManager;
+﻿using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.ExtensionManager;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using System;
@@ -25,21 +26,15 @@ namespace ExperimentalFeatures
     }
 
     [Guid("ec98875a-b294-456a-98d5-7663e703ded2")]
-    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [ProvideAutoLoad(UIContextGuids80.SolutionExists, PackageAutoLoadFlags.BackgroundLoad)]
+    [PackageRegistration(UseManagedResourcesOnly = true)]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string)]
     public sealed class InstallerPackage : AsyncPackage
     {
         protected override async Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            var repository = await GetServiceAsync(typeof(SVsExtensionRepository)) as IVsExtensionRepository;
-            var manager = await GetServiceAsync(typeof(SVsExtensionManager)) as IVsExtensionManager;
+            Installer installer = await GetInstallerAsync();
 
-            var store = new DataStore(Constants.LogFile);
-            var feed = new LiveFeed(Constants.LiveFeedCachePath);
-            var installer = new Installer(repository, manager, feed, store);
-            var registry = new RegistryKeyWrapper(UserRegistryRoot);
-
-            bool hasUpdates = await installer.CheckForUpdatesAsync(registry);
+            bool hasUpdates = await installer.CheckForUpdatesAsync();
 
             //if (!hasUpdates)
             //    return;
@@ -51,10 +46,22 @@ namespace ExperimentalFeatures
                 var statusBar = await GetServiceAsync(typeof(SVsStatusbar)) as IVsStatusbar;
                 statusBar.SetText("Installing Experimental Web Features...");
 
-                await installer.InstallAsync(missingExtensions);
+                await installer.InstallAsync(missingExtensions, cancellationToken);
 
                 statusBar.SetText("Experimental Web Features installed");
             }
+        }
+
+        private async Tasks.Task<Installer> GetInstallerAsync()
+        {
+            var repository = await GetServiceAsync(typeof(SVsExtensionRepository)) as IVsExtensionRepository;
+            var manager = await GetServiceAsync(typeof(SVsExtensionManager)) as IVsExtensionManager;
+
+            var registry = new RegistryKeyWrapper(UserRegistryRoot);
+            var store = new DataStore(Constants.LogFile);
+            var feed = new LiveFeed(registry, Constants.LiveFeedUrl, Constants.LiveFeedCachePath);
+
+            return new Installer(repository, manager, feed, store);
         }
     }
 }
