@@ -2,11 +2,12 @@
 
 - [x] Install missing extensions
 - [x] Auto-update from live feed
-- [ ] Command to open model dialog
-- [ ] Reset extension
+- [x] Command to open model dialog
+- [x] Reset extension
 - [ ] Uninstall extensions
 - [ ] Read and write registry keys
 - [ ] Show progress in Background Tasks
+- [ ] Move strings to resource file
 
 Features that have a checkmark are complete and available for
 download in the

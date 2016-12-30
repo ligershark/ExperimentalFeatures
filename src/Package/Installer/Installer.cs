@@ -13,15 +13,17 @@ namespace ExperimentalFeatures
         private IVsExtensionRepository _repository;
         private IVsExtensionManager _manager;
         private LiveFeed _liveFeed;
-        private DataStore _store;
 
         public Installer(IVsExtensionRepository repository, IVsExtensionManager manager, LiveFeed feed, DataStore store)
         {
             _repository = repository;
             _manager = manager;
             _liveFeed = feed;
-            _store = store;
+
+            Store = store;
         }
+
+        public DataStore Store { get; }
 
         public async Task<bool> CheckForUpdatesAsync()
         {
@@ -32,13 +34,17 @@ namespace ExperimentalFeatures
             {
                 hasUpdates = await _liveFeed.UpdateAsync();
             }
+            else
+            {
+                await _liveFeed.ParseAsync();
+            }
 
             return hasUpdates;
         }
 
         public async Task ResetAsync()
         {
-            _store.Reset();
+            Store.Reset();
             await _liveFeed.UpdateAsync();
             await InstallAsync(GetMissingExtensions());
         }
@@ -50,7 +56,12 @@ namespace ExperimentalFeatures
 
 #if DEBUG
             // Don't install while running in debug mode
-            await Task.Delay(2000);
+            foreach (var ext in missingExtensions)
+            {
+                await Task.Delay(2000);
+                Store.MarkInstalled(ext);
+            }
+            Store.Save();
             return;
 #endif
 
@@ -72,7 +83,7 @@ namespace ExperimentalFeatures
                 }
                 finally
                 {
-                    _store.Save();
+                    Store.Save();
                 }
             });
         }
@@ -102,7 +113,7 @@ namespace ExperimentalFeatures
             {
                 if (entry != null)
                 {
-                    _store.MarkInstalled(extension);
+                    Store.MarkInstalled(extension);
                 }
             }
         }
@@ -112,7 +123,7 @@ namespace ExperimentalFeatures
             var installed = _manager.GetInstalledExtensions();
             var notInstalled = _liveFeed.Extensions.Where(ext => !installed.Any(ins => ins.Header.Identifier == ext.Id));
 
-            return notInstalled.Where(ext => !_store.HasBeenInstalled(ext.Id));
+            return notInstalled.Where(ext => !Store.HasBeenInstalled(ext.Id));
         }
     }
 }

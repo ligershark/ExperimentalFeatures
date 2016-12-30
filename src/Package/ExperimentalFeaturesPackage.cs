@@ -18,22 +18,24 @@ namespace ExperimentalFeatures
     [ProvideMenuResource("Menus.ctmenu", 1)]
     public sealed class ExperimentalFeaturesPackage : AsyncPackage
     {
+        public static Installer Installer { get; private set; }
+
         protected override async Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await RegisterCommandsAsync();
 
-            Installer installer = await GetInstallerAsync();
+            Installer = await GetInstallerAsync();
 
-            bool hasUpdates = await installer.CheckForUpdatesAsync();
+            bool hasUpdates = await Installer.CheckForUpdatesAsync();
 
 #if !DEBUG
             if (!hasUpdates)
                 return;
 #endif
-            await InstallExtensions(cancellationToken, installer);
+            await InstallExtensionsAsync(cancellationToken, Installer);
         }
 
-        private async Tasks.Task InstallExtensions(CancellationToken cancellationToken, Installer installer)
+        private async Tasks.Task InstallExtensionsAsync(CancellationToken cancellationToken, Installer installer)
         {
             var missingExtensions = installer.GetMissingExtensions();
 

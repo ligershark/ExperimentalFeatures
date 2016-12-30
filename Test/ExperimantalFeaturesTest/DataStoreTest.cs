@@ -55,7 +55,7 @@ namespace ExperimantalFeaturesTest
         [TestMethod]
         public void LogFileExist()
         {
-            var msg = new[] { new LogMessage(_entry.Id, "Installed") };
+            var msg = new[] { new LogMessage(_entry, "Installed") };
 
             var json = JsonConvert.SerializeObject(msg);
             File.WriteAllText(_logFile, json);
@@ -70,7 +70,7 @@ namespace ExperimantalFeaturesTest
         [TestMethod]
         public void Reset()
         {
-            var msg = new[] { new LogMessage(_entry.Id, "Installed") };
+            var msg = new[] { new LogMessage(_entry, "Installed") };
 
             var json = JsonConvert.SerializeObject(msg);
             File.WriteAllText(_logFile, json);

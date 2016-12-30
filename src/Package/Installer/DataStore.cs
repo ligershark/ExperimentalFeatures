@@ -20,12 +20,12 @@ namespace ExperimentalFeatures
 
         public void MarkInstalled(ExtensionEntry extension)
         {
-            Log.Add(new LogMessage(extension.Id, "Installed"));
+            Log.Add(new LogMessage(extension, "Installed"));
         }
 
         public void MarkUninstalled(ExtensionEntry extension)
         {
-            Log.Add(new LogMessage(extension.Id, "Uninstalled"));
+            Log.Add(new LogMessage(extension, "Uninstalled"));
         }
 
         public bool HasBeenInstalled(string id)
@@ -72,16 +72,23 @@ namespace ExperimentalFeatures
 
         internal struct LogMessage
         {
-            public LogMessage(string id, string action)
+            public LogMessage(ExtensionEntry entry, string action)
             {
-                Id = id;
+                Id = entry.Id;
+                Name = entry.Name;
                 Action = action;
                 Date = DateTime.Now;
             }
 
             public string Id { get; set; }
+            public string Name { get; set; }
             public DateTime Date { get; set; }
             public string Action { get; set; }
+
+            public override string ToString()
+            {
+                return $"{Date} {Action} {Name}";
+            }
         }
     }
 }

@@ -1,6 +1,9 @@
-﻿using Microsoft.VisualStudio.Shell;
+﻿using EnvDTE;
+using ExperimentalFeatures.Commands;
+using Microsoft.VisualStudio.Shell;
 using System;
 using System.ComponentModel.Design;
+using System.Windows.Interop;
 
 namespace ExperimentalFeatures
 {
@@ -35,7 +38,14 @@ namespace ExperimentalFeatures
 
         private void MenuItemCallback(object sender, EventArgs e)
         {
-            System.Windows.Forms.MessageBox.Show("Test", Vsix.Name);
+            var dialog = new LogWindow();
+            var dte = (DTE)ServiceProvider.GetService(typeof(DTE));
+
+            var hwnd = new IntPtr(dte.MainWindow.HWnd);
+            var window = (System.Windows.Window)HwndSource.FromHwnd(hwnd).RootVisual;
+            dialog.Owner = window;
+
+            var result = dialog.ShowDialog();
         }
     }
 }
