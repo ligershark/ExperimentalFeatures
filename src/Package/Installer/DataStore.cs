@@ -9,6 +9,7 @@ namespace ExperimentalFeatures
     public class DataStore
     {
         private static string _logFile;
+        internal List<LogMessage> _installedExtensions = new List<LogMessage>();
 
         public DataStore(string filePath)
         {
@@ -16,16 +17,24 @@ namespace ExperimentalFeatures
             Initialize();
         }
 
-        public List<ExtensionEntry> PreviouslyInstalledExtensions { get; private set; } = new List<ExtensionEntry>();
+        public void MarkInstalled(ExtensionEntry extension)
+        {
+            _installedExtensions.Add(new LogMessage(extension.Id, "Installed"));
+        }
+
+        public void MarkUninstalled(ExtensionEntry extension)
+        {
+            _installedExtensions.Add(new LogMessage(extension.Id, "Uninstalled"));
+        }
 
         public bool HasBeenInstalled(string id)
         {
-            return PreviouslyInstalledExtensions.Any(ext => ext.Id == id);
+            return _installedExtensions.Any(ext => ext.Id == id);
         }
 
         public void Save()
         {
-            string json = JsonConvert.SerializeObject(PreviouslyInstalledExtensions);
+            string json = JsonConvert.SerializeObject(_installedExtensions);
             File.WriteAllText(_logFile, json);
         }
 
@@ -34,7 +43,7 @@ namespace ExperimentalFeatures
             try
             {
                 File.Delete(_logFile);
-                PreviouslyInstalledExtensions.Clear();
+                _installedExtensions.Clear();
                 return true;
             }
             catch (Exception ex)
@@ -50,13 +59,28 @@ namespace ExperimentalFeatures
             {
                 if (File.Exists(_logFile))
                 {
-                    PreviouslyInstalledExtensions = JsonConvert.DeserializeObject<List<ExtensionEntry>>(File.ReadAllText(_logFile));
+                    _installedExtensions = JsonConvert.DeserializeObject<List<LogMessage>>(File.ReadAllText(_logFile));
                 }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.Write(ex);
+                File.Delete(_logFile);
             }
+        }
+
+        public struct LogMessage
+        {
+            public LogMessage(string id, string action)
+            {
+                Id = id;
+                Action = action;
+                Date = DateTime.Now;
+            }
+
+            public string Id { get; set; }
+            public DateTime Date { get; set; }
+            public string Action { get; set; }
         }
     }
 }

@@ -102,7 +102,7 @@ namespace ExperimentalFeatures
             {
                 if (entry != null)
                 {
-                    _store.PreviouslyInstalledExtensions.Add(extension);
+                    _store.MarkInstalled(extension);
                 }
             }
         }
