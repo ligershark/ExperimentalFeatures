@@ -10,15 +10,23 @@ namespace ExperimantalFeaturesTest
     [TestClass]
     public class LiveFeedTest
     {
+        private string _localPath;
+
+        [TestInitialize]
+        public void Setup()
+        {
+            _localPath = Path.Combine(Path.GetTempPath(), "feed.json");
+            File.Delete(_localPath);
+        }
+
         [TestMethod]
         public async Task UpdateAsync()
         {
-            string localPath = Path.Combine(Path.GetTempPath(), "update.json");
             var file = new FileInfo("..\\..\\artifacts\\feed.json");
-            var feed = new LiveFeed(new StaticRegistryKey(), file.FullName, localPath);
+            var feed = new LiveFeed(new StaticRegistryKey(), file.FullName, _localPath);
 
             await feed.UpdateAsync();
-            File.Delete(localPath);
+            File.Delete(_localPath);
 
             Assert.IsTrue(feed.Extensions.Count == 2);
             Assert.IsTrue(feed.Extensions[0].Name == "Add New File");
@@ -27,10 +35,31 @@ namespace ExperimantalFeaturesTest
         }
 
         [TestMethod]
+        public async Task UpdateInvalidJSONAsync()
+        {
+            var feed = new LiveFeed(new StaticRegistryKey(), "http://example.com", _localPath);
+
+            await feed.UpdateAsync();
+
+            Assert.IsTrue(feed.Extensions.Count == 0);
+            Assert.IsFalse(File.Exists(_localPath));
+        }
+
+        [TestMethod]
+        public async Task Update404Async()
+        {
+            var feed = new LiveFeed(new StaticRegistryKey(), "http://asdlfkhasdflijsdflisjdfjoi23498734so08s0d8f.dk", _localPath);
+
+            await feed.UpdateAsync();
+
+            Assert.IsTrue(feed.Extensions.Count == 0);
+            Assert.IsFalse(File.Exists(_localPath));
+        }
+
+        [TestMethod]
         public async Task ParsingAsync()
         {
-            string localPath = Path.Combine(Path.GetTempPath(), "feed.json");
-            var feed = new LiveFeed(new StaticRegistryKey(), "", localPath);
+            var feed = new LiveFeed(new StaticRegistryKey(), "", _localPath);
 
             string content = @"{
             ""Add New File"": {
@@ -39,10 +68,10 @@ namespace ExperimantalFeaturesTest
                 }
             }";
 
-            File.WriteAllText(localPath, content);
+            File.WriteAllText(_localPath, content);
 
             await feed.ParseAsync();
-            File.Delete(localPath);
+            File.Delete(_localPath);
 
             Assert.IsTrue(feed.Extensions.Count == 1);
             Assert.IsTrue(feed.Extensions[0].Name == "Add New File");

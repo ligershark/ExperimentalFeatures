@@ -9,11 +9,11 @@ namespace ExperimentalFeatures
 {
     public class LiveFeed
     {
-        public LiveFeed(IRegistryKey key, string liveFeedUrl, string cachePath)
+        public LiveFeed(IRegistryKey key, string defaultLiveFeedUrl, string cachePath)
         {
             LocalCachePath = cachePath;
 
-            EnsureRegistry(key, liveFeedUrl);
+            EnsureRegistry(key, defaultLiveFeedUrl);
         }
 
         public string LocalCachePath { get; }
@@ -62,11 +62,18 @@ namespace ExperimentalFeatures
 
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(LocalCachePath));
-
                 using (var client = new WebClient())
                 {
-                    await client.DownloadFileTaskAsync(LiveFeedUrl, LocalCachePath);
+                    string response = await client.DownloadStringTaskAsync(LiveFeedUrl);
+
+                    // Test if reponse is a valid JSON object
+                    var json = JObject.Parse(response);
+
+                    if (json != null)
+                    {
+                        Directory.CreateDirectory(Path.GetDirectoryName(LocalCachePath));
+                        File.WriteAllText(LocalCachePath, response);
+                    }
                 }
             }
             catch (Exception ex)

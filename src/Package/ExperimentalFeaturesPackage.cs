@@ -14,31 +14,27 @@ namespace ExperimentalFeatures
     [Guid(PackageGuids.guidShowModalCommandPackageString)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", Vsix.Version, IconResourceID = 400)]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     public sealed class ExperimentalFeaturesPackage : AsyncPackage
     {
         protected override async Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            var commandService = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
+            await RegisterCommandsAsync();
 
-            ShowModalCommand.Initialize(this, commandService);
-        }
-    }
-
-    [Guid("ec98875a-b294-456a-98d5-7663e703ded2")]
-    [PackageRegistration(UseManagedResourcesOnly = true)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string)]
-    public sealed class InstallerPackage : AsyncPackage
-    {
-        protected override async Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
-        {
             Installer installer = await GetInstallerAsync();
 
             bool hasUpdates = await installer.CheckForUpdatesAsync();
 
-            //if (!hasUpdates)
-            //    return;
+#if !DEBUG
+            if (!hasUpdates)
+                return;
+#endif
+            await InstallExtensions(cancellationToken, installer);
+        }
 
+        private async Tasks.Task InstallExtensions(CancellationToken cancellationToken, Installer installer)
+        {
             var missingExtensions = installer.GetMissingExtensions();
 
             if (missingExtensions.Any())
@@ -49,6 +45,14 @@ namespace ExperimentalFeatures
                 await installer.InstallAsync(missingExtensions, cancellationToken);
 
                 statusBar.SetText("Experimental Web Features installed");
+            }
+        }
+
+        private async Tasks.Task RegisterCommandsAsync()
+        {
+            if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService commandService)
+            {
+                ShowModalCommand.Initialize(this, commandService);
             }
         }
 
