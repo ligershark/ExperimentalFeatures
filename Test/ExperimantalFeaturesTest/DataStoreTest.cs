@@ -1,12 +1,7 @@
 ﻿using ExperimentalFeatures;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static ExperimentalFeatures.DataStore;
 
 namespace ExperimantalFeaturesTest
@@ -15,11 +10,13 @@ namespace ExperimantalFeaturesTest
     public class DataStoreTest
     {
         private string _logFile;
+        private ExtensionEntry _entry;
 
         [TestInitialize]
         public void Setup()
         {
             _logFile = Path.Combine(Path.GetTempPath(), "logfile.json");
+            _entry = new ExtensionEntry { Id = "id" };
         }
 
         [TestCleanup]
@@ -31,16 +28,14 @@ namespace ExperimantalFeaturesTest
         [TestMethod]
         public void ExtensionInstalledNoLogFile()
         {
-            var entry = new ExtensionEntry();
-            entry.Id = "id";
-
             var store = new DataStore(_logFile);
-            store.MarkInstalled(entry);
+            store.MarkInstalled(_entry);
 
-            Assert.AreEqual(1, store._installedExtensions.Count);
+            Assert.AreEqual(1, store.Log.Count);
             Assert.IsFalse(File.Exists(_logFile));
-            Assert.AreEqual(entry.Id, store._installedExtensions[0].Id);
-            Assert.AreEqual("Installed", store._installedExtensions[0].Action);
+            Assert.AreEqual(_entry.Id, store.Log[0].Id);
+            Assert.AreEqual("Installed", store.Log[0].Action);
+            Assert.IsTrue(store.HasBeenInstalled(_entry.Id));
 
             store.Save();
             Assert.IsTrue(File.Exists(_logFile));
@@ -49,31 +44,46 @@ namespace ExperimantalFeaturesTest
         [TestMethod]
         public void ExtensionUninstalledNoLogFile()
         {
-            var entry = new ExtensionEntry();
-            entry.Id = "id";
-
             var store = new DataStore(_logFile);
-            store.MarkUninstalled(entry);
+            store.MarkUninstalled(_entry);
 
-            Assert.AreEqual(1, store._installedExtensions.Count);
-            Assert.AreEqual(entry.Id, store._installedExtensions[0].Id);
-            Assert.AreEqual("Uninstalled", store._installedExtensions[0].Action);
+            Assert.AreEqual(1, store.Log.Count);
+            Assert.AreEqual(_entry.Id, store.Log[0].Id);
+            Assert.AreEqual("Uninstalled", store.Log[0].Action);
         }
 
         [TestMethod]
         public void LogFileExist()
         {
-            var entry = new ExtensionEntry();
-            entry.Id = "id";
-
-            var msg = new[] { new LogMessage(entry.Id, "Installed") };
+            var msg = new[] { new LogMessage(_entry.Id, "Installed") };
 
             var json = JsonConvert.SerializeObject(msg);
             File.WriteAllText(_logFile, json);
 
             var store = new DataStore(_logFile);
 
-            Assert.AreEqual(1, store._installedExtensions.Count);
+            Assert.IsTrue(store.HasBeenInstalled(_entry.Id));
+            Assert.AreEqual(1, store.Log.Count);
+            Assert.AreEqual(_entry.Id, store.Log[0].Id);
+        }
+
+        [TestMethod]
+        public void Reset()
+        {
+            var msg = new[] { new LogMessage(_entry.Id, "Installed") };
+
+            var json = JsonConvert.SerializeObject(msg);
+            File.WriteAllText(_logFile, json);
+
+            var store = new DataStore(_logFile);
+
+            Assert.AreEqual(1, store.Log.Count);
+
+            bool success = store.Reset();
+
+            Assert.IsTrue(success);
+            Assert.AreEqual(0, store.Log.Count);
+            Assert.IsFalse(File.Exists(_logFile));
         }
     }
 }

@@ -9,7 +9,6 @@ namespace ExperimentalFeatures
     public class DataStore
     {
         private static string _logFile;
-        internal List<LogMessage> _installedExtensions = new List<LogMessage>();
 
         public DataStore(string filePath)
         {
@@ -17,24 +16,26 @@ namespace ExperimentalFeatures
             Initialize();
         }
 
+        internal List<LogMessage> Log { get; private set; } = new List<LogMessage>();
+
         public void MarkInstalled(ExtensionEntry extension)
         {
-            _installedExtensions.Add(new LogMessage(extension.Id, "Installed"));
+            Log.Add(new LogMessage(extension.Id, "Installed"));
         }
 
         public void MarkUninstalled(ExtensionEntry extension)
         {
-            _installedExtensions.Add(new LogMessage(extension.Id, "Uninstalled"));
+            Log.Add(new LogMessage(extension.Id, "Uninstalled"));
         }
 
         public bool HasBeenInstalled(string id)
         {
-            return _installedExtensions.Any(ext => ext.Id == id);
+            return Log.Any(ext => ext.Id == id);
         }
 
         public void Save()
         {
-            string json = JsonConvert.SerializeObject(_installedExtensions);
+            string json = JsonConvert.SerializeObject(Log);
             File.WriteAllText(_logFile, json);
         }
 
@@ -43,7 +44,7 @@ namespace ExperimentalFeatures
             try
             {
                 File.Delete(_logFile);
-                _installedExtensions.Clear();
+                Log.Clear();
                 return true;
             }
             catch (Exception ex)
@@ -59,7 +60,7 @@ namespace ExperimentalFeatures
             {
                 if (File.Exists(_logFile))
                 {
-                    _installedExtensions = JsonConvert.DeserializeObject<List<LogMessage>>(File.ReadAllText(_logFile));
+                    Log = JsonConvert.DeserializeObject<List<LogMessage>>(File.ReadAllText(_logFile));
                 }
             }
             catch (Exception ex)
@@ -69,7 +70,7 @@ namespace ExperimentalFeatures
             }
         }
 
-        public struct LogMessage
+        internal struct LogMessage
         {
             public LogMessage(string id, string action)
             {
