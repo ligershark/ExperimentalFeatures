@@ -34,25 +34,32 @@ namespace ExperimentalFeatures
             if (!File.Exists(LocalCachePath))
                 return;
 
-            using (var reader = new StreamReader(LocalCachePath))
+            try
             {
-                string json = await reader.ReadToEndAsync();
-                var root = JObject.Parse(json);
-
-                foreach (var obj in root.Children<JProperty>())
+                using (var reader = new StreamReader(LocalCachePath))
                 {
-                    var child = obj.Children<JProperty>();
+                    string json = await reader.ReadToEndAsync();
+                    var root = JObject.Parse(json);
 
-                    var entry = new ExtensionEntry()
+                    foreach (var obj in root.Children<JProperty>())
                     {
-                        Name = obj.Name,
-                        Id = (string)root[obj.Name]["id"],
-                        MinVersion = new Version((string)root[obj.Name]["minVersion"] ?? "15.0"),
-                        MaxVersion = new Version((string)root[obj.Name]["maxVersion"] ?? "16.0")
-                    };
+                        var child = obj.Children<JProperty>();
 
-                    Extensions.Add(entry);
+                        var entry = new ExtensionEntry()
+                        {
+                            Name = obj.Name,
+                            Id = (string)root[obj.Name]["id"],
+                            MinVersion = new Version((string)root[obj.Name]["minVersion"] ?? "15.0"),
+                            MaxVersion = new Version((string)root[obj.Name]["maxVersion"] ?? "16.0")
+                        };
+
+                        Extensions.Add(entry);
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.Write(ex);
             }
         }
 

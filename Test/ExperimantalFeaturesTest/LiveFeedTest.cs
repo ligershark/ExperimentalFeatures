@@ -1,9 +1,8 @@
-using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ExperimentalFeatures;
-using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO;
-using System.Linq;
+using System.Threading.Tasks;
 
 namespace ExperimantalFeaturesTest
 {
@@ -76,6 +75,21 @@ namespace ExperimantalFeaturesTest
             Assert.IsTrue(feed.Extensions.Count == 1);
             Assert.IsTrue(feed.Extensions[0].Name == "Add New File");
             Assert.IsTrue(feed.Extensions[0].Id == "2E78AA18-E864-4FBB-B8C8-6186FC865DB3");
+        }
+
+        [TestMethod]
+        public async Task ParsingInvalidJsonAsync()
+        {
+            var feed = new LiveFeed(new StaticRegistryKey(), "", _localPath);
+
+            string content = "invalid json";
+
+            File.WriteAllText(_localPath, content);
+
+            await feed.ParseAsync();
+            File.Delete(_localPath);
+
+            Assert.IsTrue(feed.Extensions.Count == 0);
         }
     }
 }

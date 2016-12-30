@@ -28,7 +28,7 @@ namespace ExperimentalFeatures
             var file = new FileInfo(_liveFeed.LocalCachePath);
             bool hasUpdates = false;
 
-            if (!file.Exists || file.LastWriteTime < DateTime.Now.AddDays(Constants.UpdateInterval))
+            if (!file.Exists || file.LastWriteTime < DateTime.Now.AddDays(-Constants.UpdateIntervalDays))
             {
                 hasUpdates = await _liveFeed.UpdateAsync();
             }

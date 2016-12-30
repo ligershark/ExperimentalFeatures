@@ -8,6 +8,6 @@ namespace ExperimentalFeatures
         public static readonly string LiveFeedCachePath = Environment.ExpandEnvironmentVariables("%localAppData%\\" + Vsix.Name + "\\feed.json");
         public static readonly string LogFile = Environment.ExpandEnvironmentVariables("%localAppData%\\" + Vsix.Name + "\\installer.log");
 
-        public const double UpdateInterval = 3;
+        public const double UpdateIntervalDays = 3;
     }
 }
