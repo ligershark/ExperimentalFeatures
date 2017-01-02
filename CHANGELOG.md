@@ -1,6 +1,7 @@
 # Road map
 
 - [ ] Dialog design update (#1)
+- [ ] Update [README.md](README.md) with screenshots etc.
 - [x] Install missing extensions
 - [x] Auto-update from live feed
 - [x] Command to open model dialog
