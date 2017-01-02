@@ -8,6 +8,9 @@ namespace ExperimentalFeatures
 {
     public class DataStore
     {
+        private const string _installed = "Installed";
+        private const string _uninstalled = "Uninstalled";
+
         private static string _logFile;
         private IRegistryKey _key;
 
@@ -23,17 +26,17 @@ namespace ExperimentalFeatures
 
         public void MarkInstalled(ExtensionEntry extension)
         {
-            Log.Add(new LogMessage(extension, "Installed"));
+            Log.Add(new LogMessage(extension, _installed));
         }
 
         public void MarkUninstalled(ExtensionEntry extension)
         {
-            Log.Add(new LogMessage(extension, "Uninstalled"));
+            Log.Add(new LogMessage(extension, _uninstalled));
         }
 
         public bool HasBeenInstalled(string id)
         {
-            return Log.Any(ext => ext.Id == id);
+            return Log.Any(ext => ext.Id == id && ext.Action == _installed);
         }
 
         public void Save()
@@ -78,7 +81,7 @@ namespace ExperimentalFeatures
 
         private void UpdateRegistry()
         {
-            var uninstall = string.Join(";", Log.Select(l => l.Id));
+            var uninstall = string.Join(";", Log.Where(l => l.Action == _uninstalled).Select(l => l.Id));
 
             using (_key.CreateSubKey(Constants.RegistrySubKey))
             {

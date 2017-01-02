@@ -52,14 +52,14 @@ namespace ExperimentalFeatures
 
         public async Task RunAsync(Version vsVersion, CancellationToken cancellationToken)
         {
-            var toInstall = GetMissingExtensions();
-            await InstallAsync(toInstall, cancellationToken);
-
             var toUninstall = GetExtensionsMarkedForDeletion(vsVersion);
             await UninstallAsync(toUninstall, cancellationToken);
+
+            var toInstall = GetMissingExtensions().Except(toUninstall);
+            await InstallAsync(toInstall, cancellationToken);
         }
 
-        private async Task InstallAsync(IEnumerable<ExtensionEntry> extensions, CancellationToken token = default(CancellationToken))
+        private async Task InstallAsync(IEnumerable<ExtensionEntry> extensions, CancellationToken token)
         {
             if (!extensions.Any())
                 return;
@@ -81,7 +81,7 @@ namespace ExperimentalFeatures
                 {
                     foreach (var extension in extensions)
                     {
-                        if (token != null && token.IsCancellationRequested)
+                        if (token.IsCancellationRequested)
                             return;
 
                         InstallExtension(extension);
@@ -160,7 +160,7 @@ namespace ExperimentalFeatures
             }
         }
 
-        internal IEnumerable<ExtensionEntry> GetMissingExtensions()
+        private IEnumerable<ExtensionEntry> GetMissingExtensions()
         {
             var installed = _manager.GetInstalledExtensions();
             var notInstalled = LiveFeed.Extensions.Where(ext => !installed.Any(ins => ins.Header.Identifier == ext.Id));

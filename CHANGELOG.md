@@ -1,12 +1,12 @@
 # Road map
 
+- [ ] Dialog design update (#1)
 - [x] Install missing extensions
 - [x] Auto-update from live feed
 - [x] Command to open model dialog
 - [x] Reset extension
 - [x] Uninstall extensions
 - [x] Read and write registry keys
-- [ ] Move strings to resource file
 
 Features that have a checkmark are complete and available for
 download in the

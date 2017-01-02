@@ -19,7 +19,7 @@ namespace ExperimentalFeatures.Commands
 
                 description.Text = "The Experimental Web Features contain early previews of features from the Visual Studio Web Team.";
 
-                var logs = ExperimentalFeaturesPackage.Installer.Store.Log.Select(l => l.ToString());
+                var logs = InstallerPackage.Installer.Store.Log.Select(l => l.ToString());
                 log.Text = string.Join(Environment.NewLine, logs);
 
                 reset.Content = "Reset...";
@@ -29,8 +29,8 @@ namespace ExperimentalFeatures.Commands
 
         private void ResetClick(object sender, RoutedEventArgs e)
         {
-            var vsVersion = ExperimentalFeaturesPackage.GetVisualStudioVersion();
-            ExperimentalFeaturesPackage.Installer.ResetAsync(vsVersion).ConfigureAwait(false);
+            var vsVersion = InstallerPackage.GetVisualStudioVersion();
+            InstallerPackage.Installer.ResetAsync(vsVersion).ConfigureAwait(false);
 
             Close();
         }
