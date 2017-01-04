@@ -1,4 +1,5 @@
 ﻿using EnvDTE;
+using EnvDTE80;
 using ExperimentalFeatures.Commands;
 using Microsoft.VisualStudio.Shell;
 using System;
@@ -38,8 +39,8 @@ namespace ExperimentalFeatures
 
         private void MenuItemCallback(object sender, EventArgs e)
         {
-            var dialog = new LogWindow();
-            var dte = (DTE)ServiceProvider.GetService(typeof(DTE));
+            var dte = ServiceProvider.GetService(typeof(DTE)) as DTE2;
+            var dialog = new LogWindow(dte);
 
             var hwnd = new IntPtr(dte.MainWindow.HWnd);
             var window = (System.Windows.Window)HwndSource.FromHwnd(hwnd).RootVisual;

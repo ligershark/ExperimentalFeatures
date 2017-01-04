@@ -1,4 +1,6 @@
-﻿using System;
+﻿using EnvDTE;
+using EnvDTE80;
+using System;
 using System.Linq;
 using System.Windows;
 
@@ -7,11 +9,15 @@ namespace ExperimentalFeatures.Commands
     /// <summary>
     /// Interaction logic for LogWindow.xaml
     /// </summary>
-    public partial class LogWindow : Window
+    public partial class LogWindow : System.Windows.Window
     {
-        public LogWindow()
+        private DTE2 _dte;
+
+        public LogWindow(DTE2 dte)
         {
             InitializeComponent();
+
+            _dte = dte;
 
             Loaded += (s, e) =>
             {
@@ -23,21 +29,32 @@ namespace ExperimentalFeatures.Commands
                 log.Text = string.Join(Environment.NewLine, logs);
 
                 reset.Content = "Reset...";
-                reset.Click += ResetClick;
+                reset.Click += ResetClickAsync;
             };
         }
 
-        private void ResetClick(object sender, RoutedEventArgs e)
+        private async void ResetClickAsync(object sender, RoutedEventArgs e)
         {
             string msg = "This will update the list of experimental features and install all of them.\r\n\r\nDo you wish to continue?";
             var answer = MessageBox.Show(msg, Vsix.Name, MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            if (answer == MessageBoxResult.Yes)
-            {
-                var vsVersion = InstallerPackage.GetVisualStudioVersion();
-                InstallerPackage.Installer.ResetAsync(vsVersion).ConfigureAwait(false);
+            if (answer != MessageBoxResult.Yes)
+                return;
 
-                Close();
+            Close();
+
+            try
+            {
+                _dte.StatusBar.Text = "Resetting Experimental Features...";
+                _dte.StatusBar.Animate(true, vsStatusAnimation.vsStatusAnimationGeneral);
+
+                var vsVersion = InstallerPackage.GetVisualStudioVersion();
+                await InstallerPackage.Installer.ResetAsync(vsVersion);
+            }
+            finally
+            {
+                _dte.StatusBar.Text = "Experimental Features have been reset";
+                _dte.StatusBar.Animate(false, vsStatusAnimation.vsStatusAnimationGeneral);
             }
         }
     }
