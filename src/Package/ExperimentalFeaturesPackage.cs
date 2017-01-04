@@ -27,7 +27,7 @@ namespace ExperimentalFeatures
             // Load installer package
             var shell = await GetServiceAsync(typeof(SVsShell)) as IVsShell;
             var guid = new Guid(InstallerPackage.PackageGuid);
-            ErrorHandler.ThrowOnFailure(shell.LoadPackage(guid, out IVsPackage ppPackage));
+            //ErrorHandler.ThrowOnFailure(shell.LoadPackage(guid, out IVsPackage ppPackage));
         }
     }
 
