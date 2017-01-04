@@ -112,11 +112,11 @@ namespace ExperimentalFeatures
                         if (token.IsCancellationRequested)
                             return;
 
-                        if (_manager.TryGetInstalledExtension(ext.Id, out IInstalledExtension result))
-                        {
-                            _manager.Uninstall(result);
-                            Store.MarkUninstalled(ext);
-                        }
+                        //if (_manager.TryGetInstalledExtension(ext.Id, out IInstalledExtension result))
+                        //{
+                        //    _manager.Uninstall(result);
+                        //    Store.MarkUninstalled(ext);
+                        //}
                     }
                 }
                 catch (Exception ex)
