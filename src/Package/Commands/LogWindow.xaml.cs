@@ -29,10 +29,16 @@ namespace ExperimentalFeatures.Commands
 
         private void ResetClick(object sender, RoutedEventArgs e)
         {
-            var vsVersion = InstallerPackage.GetVisualStudioVersion();
-            InstallerPackage.Installer.ResetAsync(vsVersion).ConfigureAwait(false);
+            string msg = "This will update the list of experimental features and install all of them.\r\n\r\nDo you wish to continue?";
+            var answer = MessageBox.Show(msg, Vsix.Name, MessageBoxButton.YesNo, MessageBoxImage.Question);
 
-            Close();
+            if (answer == MessageBoxResult.Yes)
+            {
+                var vsVersion = InstallerPackage.GetVisualStudioVersion();
+                InstallerPackage.Installer.ResetAsync(vsVersion).ConfigureAwait(false);
+
+                Close();
+            }
         }
     }
 }
