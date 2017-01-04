@@ -19,7 +19,9 @@ namespace ExperimentalFeatures
     {
         protected override async Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
-            if (await GetServiceAsync(typeof(IMenuCommandService)) is OleMenuCommandService commandService)
+            var commandService = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
+
+            if (commandService != null)
             {
                 ShowModalCommand.Initialize(this, commandService);
             }
@@ -27,7 +29,8 @@ namespace ExperimentalFeatures
             // Load installer package
             var shell = await GetServiceAsync(typeof(SVsShell)) as IVsShell;
             var guid = new Guid(InstallerPackage.PackageGuid);
-            ErrorHandler.ThrowOnFailure(shell.LoadPackage(guid, out IVsPackage ppPackage));
+            IVsPackage ppPackage;
+            ErrorHandler.ThrowOnFailure(shell.LoadPackage(guid, out ppPackage));
         }
     }
 
