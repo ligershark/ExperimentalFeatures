@@ -11,6 +11,7 @@
     <StartArguments>/rootsuffix Exp</StartArguments>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
