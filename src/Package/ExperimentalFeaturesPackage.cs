@@ -36,7 +36,7 @@ namespace ExperimentalFeatures
 
     [Guid(PackageGuid)]
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.SolutionExists_string, PackageAutoLoadFlags.BackgroundLoad)]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string, PackageAutoLoadFlags.BackgroundLoad)]
     public sealed class InstallerPackage : AsyncPackage
     {
         public const string PackageGuid = "4f2f2873-be87-4716-a4d5-3f3f047942d7";
