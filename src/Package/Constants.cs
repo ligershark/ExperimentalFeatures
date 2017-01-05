@@ -4,7 +4,7 @@ namespace ExperimentalFeatures
 {
     public class Constants
     {
-        public const string LiveFeedUrl = "https://raw.githubusercontent.com/ligershark/ExperimentalFeatures/master/extensions.json";
+        public const string LiveFeedUrl = "https://aka.ms/hj6y82";
         public static readonly string LiveFeedCachePath = Environment.ExpandEnvironmentVariables("%localAppData%\\" + Vsix.Name + "\\feed.json");
         public static readonly string LogFile = Environment.ExpandEnvironmentVariables("%localAppData%\\" + Vsix.Name + "\\installer.log");
 
