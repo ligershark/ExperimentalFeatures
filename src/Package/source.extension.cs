@@ -11,8 +11,8 @@ namespace ExperimentalFeatures
         public const string Name = "Experimental Web Features";
         public const string Description = @"Contains preview features from the Visual Studio Web Team";
         public const string Language = "en-US";
-        public const string Version = "0.1";
-        public const string Author = "Mads Kristensen";
+        public const string Version = "1.0";
+        public const string Author = "Microsoft";
         public const string Tags = "extensions, features, preview";
     }
 }

@@ -3,7 +3,7 @@
   <Import Project="..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props" Condition="Exists('..\..\packages\MicroBuild.Core.0.2.0\build\MicroBuild.Core.props')" />
   <Import Project="..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25929-RC2\build\Microsoft.VSSDK.BuildTools.props" Condition="Exists('..\..\packages\Microsoft.VSSDK.BuildTools.15.0.25929-RC2\build\Microsoft.VSSDK.BuildTools.props')" />
   <Import Project="..\..\build\build.settings.targets" />
-    <ItemGroup>
+  <ItemGroup>
     <FilesToSign Include="$(OutDir)\ExperimentalFeatures.vsix">
       <Authenticode>VsixSHA2</Authenticode>
     </FilesToSign>
@@ -77,8 +77,6 @@
       <Link>Resources\Icon.png</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="index.html" />
-    <Content Include="stylesheet.css" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Package\ExperimentalFeatures.csproj">
