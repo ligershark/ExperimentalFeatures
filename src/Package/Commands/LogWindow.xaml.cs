@@ -23,7 +23,7 @@ namespace ExperimentalFeatures.Commands
             {
                 Title = Vsix.Name;
 
-                description.Text = "The Experimental Web Features contain early previews of features from the Visual Studio Web Team.";
+                description.Text = "The Experimental Web Tools contain experimental features from the Visual Studio Web Team.";
 
                 var logs = InstallerPackage.Installer.Store.Log.Select(l => l.ToString());
                 log.Text = string.Join(Environment.NewLine, logs);

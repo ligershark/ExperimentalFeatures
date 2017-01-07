@@ -2,8 +2,8 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
     <Identity Id="d9fa18a5-26f3-4900-9275-19e0cd5dcd9f" Version="1.0" Language="en-US" Publisher="Microsoft" />
-    <DisplayName>Experimental Web Features</DisplayName>
-    <Description xml:space="preserve">Contains preview features from the Visual Studio Web Team</Description>
+    <DisplayName>Experimental Web Tools</DisplayName>
+    <Description xml:space="preserve">Contains experimental features from the Visual Studio Web Team</Description>
     <MoreInfo>https://github.com/ligershark/ExperimentalFeatures</MoreInfo>
     <License>Resources\LICENSE</License>
     <ReleaseNotes>https://github.com/ligershark/ExperimentalFeatures/blob/master/CHANGELOG.md</ReleaseNotes>

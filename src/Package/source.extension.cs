@@ -8,8 +8,8 @@ namespace ExperimentalFeatures
     static class Vsix
     {
         public const string Id = "d9fa18a5-26f3-4900-9275-19e0cd5dcd9f";
-        public const string Name = "Experimental Web Features";
-        public const string Description = @"Contains preview features from the Visual Studio Web Team";
+        public const string Name = "Experimental Web Tools";
+        public const string Description = @"Contains experimental features from the Visual Studio Web Team";
         public const string Language = "en-US";
         public const string Version = "1.0";
         public const string Author = "Microsoft";
