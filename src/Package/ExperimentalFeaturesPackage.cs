@@ -45,11 +45,12 @@ namespace ExperimentalFeatures
 
         protected override async Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
+            PackageTelemetry.TelemetrySession.PackageLoaded();
+
             Installer = await GetInstallerAsync();
 
             bool hasUpdates = await Installer.CheckForUpdatesAsync();
 
-            PackageTelemetry.TelemetrySession.PackageLoaded();
 #if !DEBUG
             if (!hasUpdates)
                 return;
