@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio;
+﻿using ExperimentalFeatures.Telemetry;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ExtensionManager;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -48,6 +49,7 @@ namespace ExperimentalFeatures
 
             bool hasUpdates = await Installer.CheckForUpdatesAsync();
 
+            PackageTelemetry.TelemetrySession.PackageLoaded();
 #if !DEBUG
             if (!hasUpdates)
                 return;
