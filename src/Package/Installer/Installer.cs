@@ -112,18 +112,23 @@ namespace ExperimentalFeatures
                         if (token.IsCancellationRequested)
                             return;
 
-                        IInstalledExtension result;
+                        IInstalledExtension installedExtension;
 
-                        if (_manager.TryGetInstalledExtension(ext.Id, out result))
+                        try
                         {
-                            _manager.Uninstall(result);
-                            Store.MarkUninstalled(ext);
+                            if (_manager.TryGetInstalledExtension(ext.Id, out installedExtension))
+                            {
+                                _manager.Uninstall(installedExtension);
+                                Store.MarkUninstalled(ext);
+                                Telemetry.UninstallSuccess(ext.Id);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Telemetry.UninstallFailure(ext.Id);
+                            System.Diagnostics.Debug.Write(ex);
                         }
                     }
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.Write(ex);
                 }
                 finally
                 {
@@ -147,10 +152,12 @@ namespace ExperimentalFeatures
                 {
                     var installable = _repository.Download(entry);
                     _manager.Install(installable, false);
+                    Telemetry.UninstallSuccess(extension.Id);
                 }
             }
             catch (Exception ex)
             {
+                Telemetry.InstallFailure(extension.Id);
                 System.Diagnostics.Debug.Write(ex);
             }
             finally

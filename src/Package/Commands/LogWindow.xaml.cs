@@ -41,6 +41,7 @@ namespace ExperimentalFeatures.Commands
             if (answer != MessageBoxResult.Yes)
                 return;
 
+            Telemetry.ResetInvoked();
             Close();
 
             try
