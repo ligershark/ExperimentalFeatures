@@ -8,53 +8,29 @@ namespace ExperimentalFeatures
 
         public static void ResetInvoked()
         {
-            var telEvent = CreateTelemetryEvent("Reset");
-            PostEventToDefaultSession(telEvent);
+            var telEvent = new UserTaskEvent(_namespace + "TimeToClose", TelemetryResult.Success);
+            TelemetryService.DefaultSession.PostEvent(telEvent);
         }
 
         public static void RecordTimeToClose(int minutes)
         {
-            var telEvent = CreateTelemetryEvent("TimeToClose");
+            var telEvent = new OperationEvent(_namespace + "TimeToClose", TelemetryResult.Success);
             telEvent.Properties.Add("minutes", minutes);
-            PostEventToDefaultSession(telEvent);
+            TelemetryService.DefaultSession.PostEvent(telEvent);
         }
 
-        public static void InstallSuccess(string extensionId)
+        public static void Install(string extensionId, bool success)
         {
-            var telEvent = CreateTelemetryEvent("InstallSuccess");
+            var telEvent = new OperationEvent(_namespace + "Install", success ? TelemetryResult.Success : TelemetryResult.Failure);
             telEvent.Properties.Add("id", extensionId);
-            PostEventToDefaultSession(telEvent);
+            TelemetryService.DefaultSession.PostEvent(telEvent);
         }
 
-        public static void InstallFailure(string extensionId)
+        public static void Uninstall(string extensionId, bool success)
         {
-            var telEvent = CreateTelemetryEvent("InstallFailure");
+            var telEvent = new OperationEvent(_namespace + "Uninstall", success ? TelemetryResult.Success : TelemetryResult.Failure);
             telEvent.Properties.Add("id", extensionId);
-            PostEventToDefaultSession(telEvent);
-        }
-
-        public static void UninstallSuccess(string extensionId)
-        {
-            var telEvent = CreateTelemetryEvent("UninstallSuccess");
-            telEvent.Properties.Add("id", extensionId);
-            PostEventToDefaultSession(telEvent);
-        }
-
-        public static void UninstallFailure(string extensionId)
-        {
-            var telEvent = CreateTelemetryEvent("UninstallFailure");
-            telEvent.Properties.Add("id", extensionId);
-            PostEventToDefaultSession(telEvent);
-        }
-
-        private static void PostEventToDefaultSession(TelemetryEvent vsTelemetryEvent)
-        {
-            TelemetryService.DefaultSession.PostEvent(vsTelemetryEvent);
-        }
-
-        private static TelemetryEvent CreateTelemetryEvent(string name)
-        {
-            return new TelemetryEvent(_namespace + name);
+            TelemetryService.DefaultSession.PostEvent(telEvent);
         }
     }
 }

@@ -120,13 +120,12 @@ namespace ExperimentalFeatures
                             {
                                 _manager.Uninstall(installedExtension);
                                 Store.MarkUninstalled(ext);
-                                Telemetry.UninstallSuccess(ext.Id);
+                                Telemetry.Uninstall(ext.Id, true);
                             }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
-                            Telemetry.UninstallFailure(ext.Id);
-                            System.Diagnostics.Debug.Write(ex);
+                            Telemetry.Uninstall(ext.Id, false);
                         }
                     }
                 }
@@ -152,13 +151,12 @@ namespace ExperimentalFeatures
                 {
                     var installable = _repository.Download(entry);
                     _manager.Install(installable, false);
-                    Telemetry.UninstallSuccess(extension.Id);
+                    Telemetry.Install(extension.Id, true);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Telemetry.InstallFailure(extension.Id);
-                System.Diagnostics.Debug.Write(ex);
+                Telemetry.Install(extension.Id, false);
             }
             finally
             {
