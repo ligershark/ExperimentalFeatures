@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.ExtensionManager;
 using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio.Shell.Interop;
 using System;
 using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
@@ -14,9 +13,18 @@ namespace ExperimentalFeatures
     [Guid(PackageGuids.guidShowModalCommandPackageString)]
     [PackageRegistration(UseManagedResourcesOnly = true)]
     [InstalledProductRegistration("#110", "#112", Vsix.Version, IconResourceID = 400)]
+    [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     public sealed class ExperimantalFeaturesPackage : AsyncPackage
     {
+        public static DateTime _installTime = DateTime.MinValue;
+
+        public static Installer Installer
+        {
+            get;
+            private set;
+        }
+
         protected override async Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             var commandService = await GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
@@ -26,28 +34,7 @@ namespace ExperimentalFeatures
                 ShowModalCommand.Initialize(this, commandService);
             }
 
-            // Load installer package
-            var shell = await GetServiceAsync(typeof(SVsShell)) as IVsShell;
-            var guid = new Guid(InstallerPackage._packageGuid);
-            IVsPackage ppPackage;
-            ErrorHandler.ThrowOnFailure(shell.LoadPackage(guid, out ppPackage));
-        }
-    }
-
-    [Guid(_packageGuid)]
-    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [ProvideAutoLoad(VSConstants.UICONTEXT.ShellInitialized_string, PackageAutoLoadFlags.BackgroundLoad)]
-    public sealed class InstallerPackage : AsyncPackage
-    {
-        public static DateTime _installTime = DateTime.MinValue;
-        public const string _packageGuid = "4f2f2873-be87-4716-a4d5-3f3f047942d7";
-
-        public static Installer Installer { get; private set; }
-
-        protected override async Tasks.Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
-        {
             Installer = await GetInstallerAsync();
-
             bool hasUpdates = await Installer.CheckForUpdatesAsync();
 
 #if !DEBUG

@@ -25,7 +25,7 @@ namespace ExperimentalFeatures.Commands
 
                 description.Text = "The Experimental Web Tools contain experimental features from the Visual Studio Web Team.";
 
-                var logs = InstallerPackage.Installer.Store.Log.Select(l => l.ToString());
+                var logs = ExperimantalFeaturesPackage.Installer.Store.Log.Select(l => l.ToString());
                 log.Text = string.Join(Environment.NewLine, logs);
 
                 reset.Content = "Reset...";
@@ -49,8 +49,8 @@ namespace ExperimentalFeatures.Commands
                 _dte.StatusBar.Text = "Resetting Experimental Features...";
                 _dte.StatusBar.Animate(true, vsStatusAnimation.vsStatusAnimationGeneral);
 
-                var vsVersion = InstallerPackage.GetVisualStudioVersion();
-                await InstallerPackage.Installer.ResetAsync(vsVersion);
+                var vsVersion = ExperimantalFeaturesPackage.GetVisualStudioVersion();
+                await ExperimantalFeaturesPackage.Installer.ResetAsync(vsVersion);
             }
             finally
             {
