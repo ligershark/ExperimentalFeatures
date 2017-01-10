@@ -24,7 +24,7 @@ namespace ExperimantalFeaturesTest
             var store = new DataStore(new StaticRegistryKey(), Constants.LogFile);
             var feed = new LiveFeed(registry, Constants.LiveFeedUrl, _cachePath);
 
-            _installer = new Installer(null, null, feed, store);
+            _installer = new Installer(feed, store);
         }
 
         [TestCleanup]

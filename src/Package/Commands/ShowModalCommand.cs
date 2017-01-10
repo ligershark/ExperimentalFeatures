@@ -1,6 +1,7 @@
 ﻿using EnvDTE;
 using EnvDTE80;
 using ExperimentalFeatures.Commands;
+using Microsoft.VisualStudio.ExtensionManager;
 using Microsoft.VisualStudio.Shell;
 using System;
 using System.ComponentModel.Design;
@@ -10,14 +11,14 @@ namespace ExperimentalFeatures
 {
     internal sealed class ShowModalCommand
     {
-        private readonly Package _package;
+        private readonly AsyncPackage _package;
 
-        private ShowModalCommand(Package package, OleMenuCommandService commandService)
+        private ShowModalCommand(AsyncPackage package, OleMenuCommandService commandService)
         {
             _package = package;
 
             var menuCommandID = new CommandID(PackageGuids.guidShowModalCommandPackageCmdSet, PackageIds.ShowModalCommandId);
-            var menuItem = new MenuCommand(this.MenuItemCallback, menuCommandID);
+            var menuItem = new MenuCommand(this.ResetAsync, menuCommandID);
             commandService.AddCommand(menuItem);
         }
 
@@ -27,20 +28,19 @@ namespace ExperimentalFeatures
             private set;
         }
 
-        private IServiceProvider ServiceProvider
+        public static async System.Threading.Tasks.Task InitializeAsync(AsyncPackage package)
         {
-            get { return _package; }
-        }
-
-        public static void Initialize(Package package, OleMenuCommandService commandService)
-        {
+            var commandService = await package.GetServiceAsync(typeof(IMenuCommandService)) as OleMenuCommandService;
             Instance = new ShowModalCommand(package, commandService);
         }
 
-        private void MenuItemCallback(object sender, EventArgs e)
+        private async void ResetAsync(object sender, EventArgs e)
         {
-            var dte = ServiceProvider.GetService(typeof(DTE)) as DTE2;
-            var dialog = new LogWindow(dte);
+            var dte = await _package.GetServiceAsync(typeof(DTE)) as DTE2;
+            var repository = await _package.GetServiceAsync(typeof(SVsExtensionRepository)) as IVsExtensionRepository;
+            var manager = await _package.GetServiceAsync(typeof(SVsExtensionManager)) as IVsExtensionManager;
+
+            var dialog = new LogWindow(dte, repository, manager);
 
             var hwnd = new IntPtr(dte.MainWindow.HWnd);
             var window = (System.Windows.Window)HwndSource.FromHwnd(hwnd).RootVisual;

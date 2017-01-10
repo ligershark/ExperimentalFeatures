@@ -106,7 +106,7 @@ namespace ExperimentalFeatures
 
             public override string ToString()
             {
-                return $"{Date} {Action} {Name}";
+                return $"{Date.ToString("yyyy-MM-dd")} {Action} {Name}";
             }
         }
     }

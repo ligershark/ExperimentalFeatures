@@ -1,5 +1,6 @@
 ﻿using EnvDTE;
 using EnvDTE80;
+using Microsoft.VisualStudio.ExtensionManager;
 using System;
 using System.Linq;
 using System.Windows;
@@ -12,12 +13,16 @@ namespace ExperimentalFeatures.Commands
     public partial class LogWindow : System.Windows.Window
     {
         private DTE2 _dte;
+        private IVsExtensionRepository _repository;
+        private IVsExtensionManager _manager;
 
-        public LogWindow(DTE2 dte)
+        public LogWindow(DTE2 dte, IVsExtensionRepository repository, IVsExtensionManager manager)
         {
             InitializeComponent();
 
             _dte = dte;
+            _repository = repository;
+            _manager = manager;
 
             Loaded += (s, e) =>
             {
@@ -25,7 +30,7 @@ namespace ExperimentalFeatures.Commands
 
                 description.Text = "The Experimental Web Tools contain experimental features from the Visual Studio Web Team.";
 
-                var logs = ExperimantalFeaturesPackage.Installer.Store.Log.Select(l => l.ToString());
+                var logs = InstallerPackage.Installer.Store.Log.Select(l => l.ToString());
                 log.Text = string.Join(Environment.NewLine, logs);
 
                 reset.Content = "Reset...";
@@ -49,8 +54,8 @@ namespace ExperimentalFeatures.Commands
                 _dte.StatusBar.Text = "Resetting Experimental Features...";
                 _dte.StatusBar.Animate(true, vsStatusAnimation.vsStatusAnimationGeneral);
 
-                var vsVersion = ExperimantalFeaturesPackage.GetVisualStudioVersion();
-                await ExperimantalFeaturesPackage.Installer.ResetAsync(vsVersion);
+                var vsVersion = InstallerPackage.GetVisualStudioVersion();
+                await InstallerPackage.Installer.ResetAsync(vsVersion, _repository, _manager);
             }
             finally
             {
