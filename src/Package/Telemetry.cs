@@ -8,7 +8,7 @@ namespace ExperimentalFeatures
 
         public static void ResetInvoked()
         {
-            var telEvent = new UserTaskEvent(_namespace + "TimeToClose", TelemetryResult.Success);
+            var telEvent = new UserTaskEvent(_namespace + "ResetInvoked", TelemetryResult.Success);
             TelemetryService.DefaultSession.PostEvent(telEvent);
         }
 
